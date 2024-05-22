@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import me.dio.service.exception.BusinessException;
 
 @Entity(name = "tb_account")
 public class Account {
@@ -65,5 +66,22 @@ public class Account {
     public void setLimit(BigDecimal limit) {
         this.limit = limit;
     }
+    public void transfer(double value, Account destinationAccount){
+        if(value > balance.toBigInteger().doubleValue()){
+            throw new BusinessException("Saldo insuficiente para realizar a transferência.");
+        }
+        if(destinationAccount == null){
+            throw new BusinessException("A conta destino não existe.");
+        }
+        this.withdraw(value);
+        destinationAccount.deposit(value);
+    }
 
+    private void deposit(double value) {
+        balance = balance.add(BigDecimal.valueOf(value));
+    }
+
+    private void withdraw(double value) {
+        balance = balance.subtract(BigDecimal.valueOf(value));
+    }
 }
